@@ -16,14 +16,14 @@
         </div>
         <!-- Tingkat Kebersihan -->
         <div class="mb-4">
-            <label for="cleanliness_level" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan (1-5)</label>
+            <label for="cleanliness_level" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan (1-10)</label>
             <input type="number" name="cleanliness_level" id="cleanliness_level" 
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
                 min="1" max="5" required>
         </div>
         <!-- Tingkat Aktivitas -->
         <div class="mb-4">
-            <label for="activity_level" class="block text-sm font-medium text-gray-700">Tingkat Aktivitas (1-5)</label>
+            <label for="activity_level" class="block text-sm font-medium text-gray-700">Tingkat Aktivitas (1-10)</label>
             <input type="number" name="activity_level" id="activity_level" 
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
                 min="1" max="5" required>

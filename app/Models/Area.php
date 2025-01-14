@@ -13,7 +13,7 @@ class Area extends Model
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class);
+        return $this->hasMany(Schedule::class, 'area_id');
     }
 
     public function reports()

@@ -7,17 +7,17 @@
     <h1 class="text-3xl font-bold mb-6">Welcome, {{ Auth::user()->name }}!</h1>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Card Example -->
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-xl font-bold">Total Areas</h2>
-            <p class="text-gray-600">{{ $totalAreas }} areas</p>
+        <div class="bg-blue-700 p-6 rounded shadow">
+            <h2 class="text-xl font-bold text-white">Total Area</h2>
+            <p class="text-white">{{ $totalAreas }} Area</p>
         </div>
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-xl font-bold">Cleaning Schedules</h2>
-            <p class="text-gray-600">{{ $totalSchedules }} schedules</p>
+        <div class="bg-blue-700 p-6 rounded shadow">
+            <h2 class="text-xl font-bold text-white">Jadwal Pembersihan</h2>
+            <p class="text-white">{{ $totalSchedules }} Jadwal</p>
         </div>
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-xl font-bold">Reports Generated</h2>
-            <p class="text-gray-600">{{ $totalReports }} reports</p>
+        <div class="bg-blue-700 p-6 rounded shadow">
+            <h2 class="text-xl font-bold text-white">Laporan Terdeteksi</h2>
+            <p class="text-white">{{ $totalReports }} Laporan</p>
         </div>
     </div>
         <h1 class="text-2xl font-bold mb-6 p-6">Prioritas Pembersihan Area Kampus</h1>

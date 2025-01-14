@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('title', 'Dashboard')</title>
   @vite('resources/css/app.css')
+  <!-- Tambahkan Font Awesome di dalam tag <head> -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
   <div class="flex flex-col min-h-screen">
     <!-- Navbar -->
     <div class="bg-blue-900 text-white p-4 flex justify-between items-center">
-      <div class="text-xl font-bold">My Dashboard</div>
+      <div class="text-xl font-bold">SPK Penjadwalan Pembersihan Kampus</div>
       
       <!-- Dropdown Profil -->
       <div class="relative">
@@ -41,10 +43,11 @@
     <div class="flex flex-grow">
       <!-- Sidebar -->
       <div class="w-64 bg-blue-900 text-white min-h-screen">
-        <div class="p-4 text-xl font-bold border-b border-blue-700">My Dashboard</div>
+        <!-- <div class="p-4 text-xl font-bold border-b border-blue-700">My Dashboard</div> -->
         <ul class="p-4">
           <li class="mb-4"><a href="/dashboard" class="hover:text-blue-300">Home</a></li>
-          <li class="mb-4"><a href="/areas" class="hover:text-blue-300">Manage Areas</a></li>
+          <li class="mb-4"><a href="/areas" class="hover:text-blue-300">Kelola Area</a></li>
+          <li class="mb-4"><a href="/schedules" class="hover:text-blue-300">Kelola Jadwal</a></li>
         </ul>
       </div>
 

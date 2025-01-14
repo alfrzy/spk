@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 
 class AreaController extends Controller
@@ -12,8 +13,8 @@ class AreaController extends Controller
      */
     public function index()
     {
+        // Ambil semua data area
         $areas = Area::all();
-        $totalAreas = Area::count(); 
         return view('areas.index', compact('areas'));
     }
 
@@ -22,6 +23,7 @@ class AreaController extends Controller
      */
     public function create()
     {
+        // Menampilkan form untuk membuat area baru
         return view('areas.create');
     }
 
@@ -31,25 +33,41 @@ class AreaController extends Controller
     public function store(Request $request)
     {
         // Validasi input
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'cleanliness_level' => 'required|integer|min:1|max:5',
-            'activity_level' => 'required|integer|min:1|max:5',
+            'cleanliness_level' => 'required|integer',
+            'activity_level' => 'required|integer',
         ]);
 
-        // Simpan data ke database
-        Area::create($validated);
+        // Hitung skor prioritas menggunakan SAW
+        $priorityScore = $this->calculatePriorityScore($request->cleanliness_level, $request->activity_level);
 
-        // Redirect ke halaman daftar area dengan pesan sukses
-        return redirect()->route('areas.index')->with('success', 'Area berhasil ditambahkan!');
+        // Simpan data area
+        $area = Area::create([
+            'name' => $request->name,
+            'cleanliness_level' => $request->cleanliness_level,
+            'activity_level' => $request->activity_level,
+            'priority_score' => $priorityScore,
+        ]);
+
+        // Tambahkan jadwal otomatis berdasarkan skor prioritas
+        Schedule::create([
+            'area_id' => $area->id,
+            'cleaner_name' => null, // Admin akan mengisi ini nanti
+            'schedule_date' => now()->addDays($priorityScore), // Urutkan berdasarkan skor prioritas
+        ]);
+
+        return redirect()->route('areas.index')->with('success', 'Area dan jadwal berhasil ditambahkan.');
     }
 
     /**
-     * Display the specified resource.
+     * Menampilkan halaman detail area tertentu.
      */
     public function show(string $id)
     {
-        //
+        // Tampilkan detail area berdasarkan ID
+        $area = Area::findOrFail($id);
+        return view('areas.show', compact('area'));
     }
 
     /**
@@ -57,7 +75,9 @@ class AreaController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // Menampilkan form untuk edit area
+        $area = Area::findOrFail($id);
+        return view('areas.edit', compact('area'));
     }
 
     /**
@@ -65,7 +85,28 @@ class AreaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validasi input
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'cleanliness_level' => 'required|integer',
+            'activity_level' => 'required|integer',
+        ]);
+
+        // Ambil area yang akan diupdate
+        $area = Area::findOrFail($id);
+
+        // Hitung ulang priority_score setelah data diperbarui
+        $priorityScore = $this->calculatePriorityScore($request->cleanliness_level, $request->activity_level);
+
+        // Update data area
+        $area->update([
+            'name' => $request->name,
+            'cleanliness_level' => $request->cleanliness_level,
+            'activity_level' => $request->activity_level,
+            'priority_score' => $priorityScore,
+        ]);
+
+        return redirect()->route('areas.index')->with('success', 'Area berhasil diperbarui.');
     }
 
     /**
@@ -73,38 +114,42 @@ class AreaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Hapus area berdasarkan ID
+        $area = Area::findOrFail($id);
+        $area->delete();
+
+        return redirect()->route('areas.index')->with('success', 'Area berhasil dihapus.');
     }
 
-    public function calculatePriority(Area $area)
-{
-    // Ambil semua data area
-    $areas = Area::all();
+    /**
+     * Menghitung priority_score berdasarkan metode SAW.
+     */
+    public function calculatePriorityScore($cleanliness_level, $activity_level)
+    {
+        // Ambil semua data area untuk perhitungan SAW
+        $areas = Area::all();
 
-    // Cari nilai maksimum kebersihan dan aktivitas
-    $maxCleanliness = $areas->max('cleanliness_level');
-    $maxActivity = $areas->max('activity_level');
+        // Cari nilai maksimum untuk cleanliness_level dan activity_level
+        $maxCleanliness = $areas->max('cleanliness_level');
+        $maxActivity = $areas->max('activity_level');
 
-    // Jika maxCleanliness atau maxActivity adalah 0, beri nilai default untuk menghindari pembagian dengan 0
-    if ($maxCleanliness == 0) $maxCleanliness = 1;
-    if ($maxActivity == 0) $maxActivity = 1;
+        // Jika nilai maksimum kebersihan atau aktivitas adalah 0, beri nilai default untuk menghindari pembagian dengan 0
+        if ($maxCleanliness == 0) $maxCleanliness = 1;
+        if ($maxActivity == 0) $maxActivity = 1;
 
-    // Hitung skor untuk masing-masing area yang dipilih
-    $cleanlinessWeight = 0.4;
-    $activityWeight = 0.6;
+        // Bobot kriteria (tentukan berdasarkan kebutuhan)
+        $cleanlinessWeight = 0.4;
+        $activityWeight = 0.6;
 
-    $score = 
-        ($area->cleanliness_level / $maxCleanliness * $cleanlinessWeight) +
-        ($area->activity_level / $maxActivity * $activityWeight);
+        // Normalisasi dan hitung skor prioritas untuk area ini
+        $normalizedCleanliness = $cleanliness_level / $maxCleanliness;
+        $normalizedActivity = $activity_level / $maxActivity;
 
-    // Update area dengan skor perhitungan prioritas
-    $area->update([
-        'priority_score' => $score,
-    ]);
+        // Hitung skor prioritas akhir
+        $priorityScore = 
+            ($normalizedCleanliness * $cleanlinessWeight) +
+            ($normalizedActivity * $activityWeight);
 
-    // Redirect kembali ke halaman areas dengan pesan sukses
-    return redirect()->route('areas.index')->with('success', 'Prioritas pembersihan area berhasil dihitung.');
-}
-
-
+        return $priorityScore;
+    }
 }
